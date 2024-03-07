@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
-from train_bert import TransformerEncoder, Classifier
+from model_bert import TransformerEncoder, Classifier
 from transformers import BertTokenizer
 #import torchtext
 
