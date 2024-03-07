@@ -10,7 +10,15 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 from model_bert import TransformerEncoder, Classifier
+from transformers import AutoTokenizer
+import torchtext
 
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+
+def tokenize_batch(batch):
+    tokenized_batch = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
+    return tokenized_batch
+    
 def save_checkpoint(model_state, filename):
     torch.save(model_state, filename)
 
@@ -18,10 +26,9 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
     model.train()
     total_loss = 0.0
     for batch in dataloader:
-        inputs = batch['sentence']
-        labels = batch['label']
-        # inputs, labels = batch
-        inputs, labels = inputs.to(device), labels.to(device)
+        inputs = tokenize_batch(batch['sentence'])  # Tokenize the text sequences
+        labels = batch['label'].to(device)  # Move labels to device
+        inputs = {key: value.to(device) for key, value in inputs.items()} 
         optimizer.zero_grad()
         encoder_output = model(inputs, mask=(inputs != 0).unsqueeze(1).unsqueeze(2))
         logits = model.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
