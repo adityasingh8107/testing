@@ -10,7 +10,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 from model_bert import TransformerEncoder, Classifier
-from utils import save_checkpoint
+
+def save_checkpoint(model_state, filename):
+    torch.save(model_state, filename)
 
 def train_epoch(model, dataloader, criterion, optimizer, device):
     model.train()
