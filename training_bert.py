@@ -31,7 +31,7 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
         inputs = {key: value.to(device) for key, value in inputs.items()} 
         optimizer.zero_grad()
         
-        mask = inputs["input_ids"] != pad_token_id
+        mask = inputs["input_ids"] != tokenizer.pad_token_id
         
         encoder_output = model(**inputs, mask=mask)
         logits = model.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
