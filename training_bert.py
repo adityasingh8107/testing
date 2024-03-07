@@ -18,7 +18,9 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
     model.train()
     total_loss = 0.0
     for batch in dataloader:
-        inputs, labels = batch
+        inputs = batch['sentence']
+        labels = batch['label']
+        # inputs, labels = batch
         inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         encoder_output = model(inputs, mask=(inputs != 0).unsqueeze(1).unsqueeze(2))
