@@ -30,7 +30,10 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
         labels = batch['label'].to(device)  # Move labels to device
         inputs = {key: value.to(device) for key, value in inputs.items()} 
         optimizer.zero_grad()
-        encoder_output = model(inputs, mask=(inputs != 0).unsqueeze(1).unsqueeze(2))
+        
+        mask = inputs["input_ids"] != pad_token_id
+        
+        encoder_output = model(**inputs, mask=mask)
         logits = model.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
         loss = criterion(logits, labels)
         loss.backward()
