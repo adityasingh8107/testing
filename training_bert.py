@@ -10,10 +10,10 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 from model_bert import TransformerEncoder, Classifier
-from transformers import AutoTokenizer
+from transformers import BertTokenizer
 import torchtext
 
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
 def tokenize_batch(batch):
     tokenized_batch = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
