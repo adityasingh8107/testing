@@ -41,8 +41,8 @@ def validate(model, dataloader, criterion, device):
     return total_loss / len(dataloader)
 
 def main():
-    batch_size = 32
-    num_epochs = 10
+    batch_size = 4
+    num_epochs = 3
     lr = 0.001
     num_layers = 6
     h = 8
