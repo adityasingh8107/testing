@@ -9,9 +9,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from datasets import load_dataset
-from model_bert import TransformerEncoder, Classifier
+from train_bert import TransformerEncoder, Classifier
 from transformers import BertTokenizer
-import torchtext
+#import torchtext
 
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
@@ -26,30 +26,31 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
     model.train()
     total_loss = 0.0
     for batch in dataloader:
-        inputs = tokenize_batch(batch['sentence'])  # Tokenize the text sequences
+        inputs = tokenize_batch(batch['sentence']).to(device)  # Tokenize the text sequences
         labels = batch['label'].to(device)  # Move labels to device
-        inputs = {key: value.to(device) for key, value in inputs.items()} 
-        optimizer.zero_grad()
-        
-        mask = inputs["input_ids"] != tokenizer.pad_token_id
-        
-        encoder_output = model(**inputs, mask=mask)
-        logits = model.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
+        mask = inputs["input_ids"] != tokenizer.pad_token_id  # Use relevant mask
+
+        encoder_output = model(inputs["input_ids"], inputs["attention_mask"])
+        logits = clasif(encoder_output[:, 0, :])
         loss = criterion(logits, labels)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
     return total_loss / len(dataloader)
 
+
 def validate(model, dataloader, criterion, device):
     model.eval()
     total_loss = 0.0
     with torch.no_grad():
         for batch in dataloader:
-            inputs, labels = batch
-            inputs, labels = inputs.to(device), labels.to(device)
-            encoder_output = model(inputs, mask=(inputs != 0).unsqueeze(1).unsqueeze(2))
-            logits = model.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
+            inputs = tokenize_batch(batch['sentence']).to(device)  # Tokenize the text sequences
+            labels = batch['label'].to(device)  # Move labels to device
+            mask = inputs["input_ids"] != tokenizer.pad_token_id  # Use relevant mask
+            
+            encoder_output = model.TransformerEncoder(inputs["input_ids"], inputs["attention_mask"])
+            
+            logits = clasif.classifier(encoder_output[:, 0, :])  # Take the first token's representation for classification
             loss = criterion(logits, labels)
             total_loss += loss.item()
     return total_loss / len(dataloader)
@@ -76,18 +77,18 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     # Define model, criterion, optimizer
-    model = nn.Sequential(
-        TransformerEncoder(
-            d_model=512, 
-            h=h, 
-            d_ff=d_ff, 
-            num_layers=num_layers, 
-            max_len=20, 
-            dropout=dropout
-        ),
-        Classifier(d_model=512, num_classes=2, dropout=dropout)
-    )
+    model = TransformerEncoder(
+                d_model=512, 
+                h=h, 
+                d_ff=d_ff, 
+                num_layers=num_layers, 
+                max_len=20, 
+                dropout=dropout
+            )
+    clasif = Classifier(d_model=512, num_classes=2, dropout=dropout)
+    
     model.to(device)
+    clasif.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
@@ -104,10 +105,3 @@ def main():
 
 # Call main function manually
 main()
-
-
-# In[ ]:
-
-
-
-
