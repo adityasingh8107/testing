@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from datasets import SSTDataset
+from datasets import load_dataset
 from model_bert import TransformerEncoder, Classifier
 from utils import save_checkpoint
 
@@ -51,10 +51,15 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Create dataset and dataloaders
-    train_dataset = SSTDataset(split='train')
-    valid_dataset = SSTDataset(split='valid')
+    sst_dataset = load_dataset("glue", "sst2")
+    train_dataset = sst_dataset["train"]
+    valid_dataset = sst_dataset["validation"]
+    test_dataset = sst_dataset["test"]
+
+    # Create dataloaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size)
 
     # Define model, criterion, optimizer
     model = nn.Sequential(
