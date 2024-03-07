@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from dataset import SSTDataset
+from datasets import SSTDataset
 from model_bert import TransformerEncoder, Classifier
 from utils import save_checkpoint
 
